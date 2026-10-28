@@ -1,0 +1,38 @@
+# Minimal config used by the CI pipeline's load/attack-verification job:
+# a single backend reachable by its container name on the CI docker network.
+
+server:
+  listen_addr: ":8080"
+  metrics_addr: ":9090"
+  max_header_bytes: 16384
+  read_timeout_ms: 5000
+  write_timeout_ms: 5000
+  tls_cert_file: ""
+  tls_key_file: ""
+
+rate_limit:
+  requests_per_second: 500
+  burst: 1000
+
+waf:
+  enabled: true
+  max_body_bytes: 8192
+  block_on_ast_anomaly: true
+  rules: []
+
+health_check:
+  enabled: true
+  path: /health
+  interval_seconds: 5
+  timeout_seconds: 2
+
+tracing:
+  enabled: false
+  otlp_http_endpoint: ""
+
+routes:
+  - path_prefix: /
+    strategy: round_robin
+    upstreams:
+      - address: backend-a:8080
+        weight: 1

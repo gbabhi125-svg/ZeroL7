@@ -1,0 +1,10 @@
+/bin/
+*.test
+*.out
+.env
+/dist/
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log

@@ -1,0 +1,52 @@
+# ZeroL7 configuration.
+# This file is hot-reloaded: a file write or `kill -HUP <pid>` re-parses it
+# and atomically swaps in the new routes/rules/limits with zero downtime.
+
+server:
+  listen_addr: ":8080"
+  metrics_addr: ":9090"
+  max_header_bytes: 16384
+  read_timeout_ms: 5000
+  write_timeout_ms: 5000
+  # Set both of these (and switch listen_addr to :8443) to terminate TLS
+  # instead of plaintext:
+  tls_cert_file: ""
+  tls_key_file: ""
+
+rate_limit:
+  requests_per_second: 50
+  burst: 100
+
+waf:
+  enabled: true
+  max_body_bytes: 8192
+  block_on_ast_anomaly: true
+  rules: []   # empty => use the built-in SQLi/XSS/path-traversal signature set
+
+health_check:
+  enabled: true
+  path: /health
+  interval_seconds: 5
+  timeout_seconds: 2
+
+tracing:
+  enabled: false
+  otlp_http_endpoint: "jaeger:4318"
+
+routes:
+  - path_prefix: /api
+    strategy: round_robin
+    upstreams:
+      - address: backend-a:8080
+        weight: 1
+      - address: backend-b:8080
+        weight: 1
+  - path_prefix: /
+    strategy: least_conn
+    upstreams:
+      - address: backend-a:8080
+        weight: 1
+      - address: backend-b:8080
+        weight: 1
+      - address: backend-c:8080
+        weight: 1

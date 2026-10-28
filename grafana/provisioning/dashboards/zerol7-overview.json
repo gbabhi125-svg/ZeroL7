@@ -1,0 +1,63 @@
+{
+  "title": "ZeroL7 Overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request rate by outcome",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum by (outcome) (rate(zerol7_requests_total[1m]))", "legendFormat": "{{outcome}}" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "WAF blocks by category",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "sum by (category) (rate(zerol7_waf_blocks_total[1m]))", "legendFormat": "{{category}}" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "WAF inspection latency (p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.99, sum(rate(zerol7_waf_inspection_seconds_bucket[1m])) by (le))", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Rate limit drops",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "expr": "rate(zerol7_rate_limit_drops_total[1m])", "legendFormat": "drops/s" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Active connections",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 16 },
+      "targets": [
+        { "expr": "zerol7_active_connections" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Upstream latency (p95) by backend",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 18, "x": 6, "y": 16 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(zerol7_upstream_latency_seconds_bucket[1m])) by (le, backend))", "legendFormat": "{{backend}}" }
+      ]
+    }
+  ]
+}

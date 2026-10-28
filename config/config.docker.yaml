@@ -1,0 +1,50 @@
+# Variant of config.yaml used by docker-compose.yml, where backend
+# hostnames and the jaeger service are actually resolvable. See config.yaml
+# for field documentation.
+
+server:
+  listen_addr: ":8080"
+  metrics_addr: ":9090"
+  max_header_bytes: 16384
+  read_timeout_ms: 5000
+  write_timeout_ms: 5000
+  tls_cert_file: ""
+  tls_key_file: ""
+
+rate_limit:
+  requests_per_second: 50
+  burst: 100
+
+waf:
+  enabled: true
+  max_body_bytes: 8192
+  block_on_ast_anomaly: true
+  rules: []
+
+health_check:
+  enabled: true
+  path: /health
+  interval_seconds: 5
+  timeout_seconds: 2
+
+tracing:
+  enabled: true
+  otlp_http_endpoint: "jaeger:4318"
+
+routes:
+  - path_prefix: /api
+    strategy: round_robin
+    upstreams:
+      - address: backend-a:8080
+        weight: 1
+      - address: backend-b:8080
+        weight: 1
+  - path_prefix: /
+    strategy: least_conn
+    upstreams:
+      - address: backend-a:8080
+        weight: 1
+      - address: backend-b:8080
+        weight: 1
+      - address: backend-c:8080
+        weight: 1
